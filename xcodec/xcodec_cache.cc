@@ -29,3 +29,4 @@
 #include <xcodec/xcodec_cache.h>
 
 std::map<UUID, XCodecCache *> XCodecCache::cache_map;
+XCodecCache *XCodecCache::local_cache;

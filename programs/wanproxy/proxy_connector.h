@@ -28,6 +28,8 @@
 
 #include <set>
 
+#include <io/net/tcp_pool_client.h>
+
 class Pipe;
 class PipePair;
 class Socket;
@@ -58,6 +60,7 @@ class ProxyConnector {
 
 public:
 	ProxyConnector(const std::string&, PipePair *, Socket *, SocketAddressFamily, const std::string&);
+	ProxyConnector(const std::string&, PipePair *, Socket *, TCPClientSocketPool *);
 private:
 	~ProxyConnector();
 

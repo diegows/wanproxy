@@ -41,10 +41,15 @@ public:
 	~XCodecEncoder();
 
 	void encode(Buffer *, Buffer *);
+
+	XCodecCache *get_cache(void) const { return cache_; };
+
 private:
 	void encode_declaration(Buffer *, Buffer *, unsigned, uint64_t, BufferSegment **);
 	void encode_escape(Buffer *, Buffer *, unsigned);
 	bool encode_reference(Buffer *, Buffer *, unsigned, uint64_t, BufferSegment *);
+
+
 };
 
 #endif /* !XCODEC_XCODEC_ENCODER_H */

@@ -30,10 +30,45 @@
 
 #include <xcodec/xcodec.h>
 #include <xcodec/xcodec_cache.h>
+#include <xcodec/cache/coss/xcodec_cache_coss.h>
+
+#include <event/event_callback.h>
+#include <event/event_system.h>
+#include <io/socket/socket.h>
 
 #include "wanproxy_config_class_codec.h"
 
+#include <fstream>
+
 WANProxyConfigClassCodec wanproxy_config_class_codec;
+
+XCodecCache *
+WANProxyConfigClassCodec::Instance::new_codec_cache(UUID &uuid)
+{
+	XCodecCache *cache;
+
+	switch(cache_type){
+	case WANProxyConfigCacheMemory:
+		cache = new XCodecMemoryCache(uuid);
+		return cache;
+	case WANProxyConfigCacheCOSS: {
+		INFO("/wanproxy/config/cache/path") << cache_path;
+		INFO("/wanproxy/config/cache/local_size") << local_size;
+		INFO("/wanproxy/config/cache/remote_size") << remote_size;
+
+		cache = new XCodecCacheCOSS(uuid, cache_path, local_size, local_size,
+                                                remote_size);
+		return cache;
+
+		}
+	default:
+		ASSERT("xcodec/cache/new", false);
+	}
+
+	// XXX: to keep g++ happy, but we must never reach this point.
+	return cache;
+
+}
 
 bool
 WANProxyConfigClassCodec::Instance::activate(const ConfigObject *co)
@@ -43,17 +78,32 @@ WANProxyConfigClassCodec::Instance::activate(const ConfigObject *co)
 	switch (codec_type_) {
 	case WANProxyConfigCodecXCodec: {
 		/*
-		 * XXX
 		 * Fetch UUID from permanent storage if there is any.
 		 */
 		UUID uuid;
-		uuid.generate();
+		std::string uuid_path = cache_path + "/UUID";
+		std::fstream uuid_file;
+
+		if(cache_path.empty())
+			uuid.generate();
+		else{   
+			if(!uuid.load_from_file(uuid_path)){
+				uuid.generate();
+				uuid.save_to_file(uuid_path);
+			}
+		}
+
+		INFO("/wanproxy/config/cache/uuid") << uuid.string_;
 
 		XCodecCache *cache = XCodecCache::lookup(uuid);
 		if (cache == NULL) {
-			cache = new XCodecMemoryCache(uuid);
+			cache = new_codec_cache(uuid);
 			XCodecCache::enter(uuid, cache);
 		}
+		//XXX: this is broken, because we could have different
+		//definitions, there is no main codec. We should find
+		//a clean way to link encoder/decoder caches.
+		XCodecCache::set_local(cache);
 		XCodec *xcodec = new XCodec(cache);
 
 		codec_.codec_ = xcodec;
@@ -91,5 +141,12 @@ WANProxyConfigClassCodec::Instance::activate(const ConfigObject *co)
 		return (false);
 	}
 
+        //XXX: other thing to move to a better place. diegows
+        //SimpleCallback *scb = callback(this, &WANProxyConfigClassCodec::close_caches);
+        //stop_action_ =
+        //EventSystem::instance()->register_interest(EventInterestStop, scb);
+
+
 	return (true);
 }
+

@@ -69,6 +69,9 @@ private:
 
 public:
 	static Socket *create(SocketAddressFamily, SocketType, const std::string& = "", const std::string& = "");
+	void set_keepalive(void);
+	void set_keepalive(int, int, int);
+	int raw_read(void *buf, size_t count);
 };
 
 #endif /* !IO_SOCKET_SOCKET_H */

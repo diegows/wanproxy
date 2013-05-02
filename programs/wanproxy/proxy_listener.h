@@ -27,6 +27,8 @@
 #define	PROGRAMS_WANPROXY_PROXY_LISTENER_H
 
 #include <io/socket/simple_server.h>
+#include <io/net/tcp_pool_client.h>
+#include <config/config_type_proto.h>
 
 class Socket;
 class TCPServer;
@@ -37,11 +39,21 @@ class ProxyListener : public SimpleServer<TCPServer> {
 	WANProxyCodec *interface_codec_;
 	WANProxyCodec *remote_codec_;
 	SocketAddressFamily remote_family_;
+	TCPClientSocketPool *socket_pool;
 	std::string remote_name_;
+
+	ConfigProto interface_proto_;
+	ConfigProto peer_proto_;
+
+	Action *read_notify_action_;
+
+	void accept_callback(Event, SocketPoolAction *);
+	void start_connector(Socket *);
+
 public:
 	ProxyListener(const std::string&, WANProxyCodec *, WANProxyCodec *, SocketAddressFamily,
 		      const std::string&, SocketAddressFamily,
-		      const std::string&);
+		      const std::string&, ConfigProto, ConfigProto);
 	~ProxyListener();
 
 private:

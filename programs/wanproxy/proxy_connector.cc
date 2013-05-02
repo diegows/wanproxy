@@ -36,6 +36,7 @@
 #include <io/pipe/splice_pair.h>
 
 #include <io/net/tcp_client.h>
+#include <io/net/tcp_pool_client.h>
 
 #include "proxy_connector.h"
 
@@ -68,6 +69,38 @@ ProxyConnector::ProxyConnector(const std::string& name,
 	SimpleCallback *scb = callback(this, &ProxyConnector::stop);
 	stop_action_ = EventSystem::instance()->register_interest(EventInterestStop, scb);
 }
+
+
+ProxyConnector::ProxyConnector(const std::string& name,
+			 PipePair *pipe_pair, Socket *local_socket,
+			 TCPClientSocketPool *socket_pool)
+: log_("/wanproxy/proxy/" + name + "/connector"),
+  stop_action_(NULL),
+  local_action_(NULL),
+  local_socket_(local_socket),
+  remote_action_(NULL),
+  remote_socket_(NULL),
+  pipe_pair_(pipe_pair),
+  incoming_pipe_(NULL),
+  incoming_splice_(NULL),
+  outgoing_pipe_(NULL),
+  outgoing_splice_(NULL),
+  splice_pair_(NULL),
+  splice_action_(NULL)
+{
+	if (pipe_pair_ != NULL) {
+		incoming_pipe_ = pipe_pair_->get_incoming();
+		outgoing_pipe_ = pipe_pair_->get_outgoing();
+	}
+
+	SocketEventCallback *cb = callback(this, &ProxyConnector::connect_complete);
+	remote_action_ = TCPPoolClient::connect(socket_pool, cb);
+
+	SimpleCallback *scb = callback(this, &ProxyConnector::stop);
+	stop_action_ = EventSystem::instance()->register_interest(EventInterestStop, scb);
+}
+
+
 
 ProxyConnector::~ProxyConnector()
 {

@@ -30,6 +30,7 @@
 #include <map>
 
 #include <common/uuid/uuid.h>
+#include <xcodec/xcodec.h>
 
 /*
  * XXX
@@ -79,8 +80,29 @@ public:
 	{ }
 
 	virtual void enter(const uint64_t&, BufferSegment *) = 0;
-	virtual BufferSegment *lookup(const uint64_t&) const = 0;
+	virtual BufferSegment *lookup(const uint64_t&) = 0;
 	virtual bool out_of_band(void) const = 0;
+
+	/* 
+	 * Return the a new object of the same type with using another UUID.
+	 * Useful to open a new cache in the decoder, using the same type of cache
+	 * of the encoder. We should improve this anyway!.
+	 */
+	virtual XCodecCache *new_uuid(const UUID &uuid) const = 0;
+
+	//XXX: these two function should be removed. See XXX comment in
+	//wanproxy_config_class_codec.cc. diegows
+	static void set_local(XCodecCache *cache)
+	{
+		INFO("XCodecCache set_local") << cache;
+		local_cache = cache;
+	}
+
+	static XCodecCache *get_local()
+	{
+		INFO("XCodecCache get_local") << local_cache;
+		return local_cache;
+	}
 
 	bool uuid_encode(Buffer *buf) const
 	{
@@ -104,8 +126,22 @@ public:
 		return (it->second);
 	}
 
+	static void close_caches(void)
+	{
+		std::map<UUID, XCodecCache *>::iterator it;
+		
+		INFO("/xcodec/cache") << "Closing caches.";
+
+		for (it = cache_map.begin(); it != cache_map.end(); it++) {
+			delete it->second;
+		}
+
+		cache_map.clear();
+	}
+
 private:
 	static std::map<UUID, XCodecCache *> cache_map;
+	static XCodecCache *local_cache;
 };
 
 class XCodecMemoryCache : public XCodecCache {
@@ -146,7 +182,7 @@ public:
 		return (false);
 	}
 
-	BufferSegment *lookup(const uint64_t& hash) const
+	BufferSegment *lookup(const uint64_t& hash)
 	{
 		segment_hash_map_t::const_iterator it;
 		it = segment_hash_map_.find(hash);
@@ -158,6 +194,13 @@ public:
 		seg = it->second;
 		seg->ref();
 		return (seg);
+	}
+
+	XCodecCache *new_uuid(const UUID &uuid) const
+	{
+
+		return new XCodecMemoryCache(uuid);
+
 	}
 };
 

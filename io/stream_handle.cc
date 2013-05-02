@@ -66,6 +66,12 @@ StreamHandle::read(size_t amount, EventCallback *cb)
 }
 
 Action *
+StreamHandle::read_notify(EventCallback *cb)
+{
+	return (IOSystem::instance()->read_notify(fd_, this, cb));
+}
+
+Action *
 StreamHandle::write(Buffer *buffer, EventCallback *cb)
 {
 	return (IOSystem::instance()->write(fd_, this, -1, buffer, cb));

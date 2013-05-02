@@ -33,3 +33,12 @@ static struct WANProxyConfigTypeCodec::Mapping wanproxy_config_type_codec_map[] 
 
 WANProxyConfigTypeCodec
 	wanproxy_config_type_codec("codec", wanproxy_config_type_codec_map);
+
+static struct WANProxyConfigTypeCache::Mapping wanproxy_config_type_cache_map[] = {
+	{ "Memory",	WANProxyConfigCacheMemory },
+	{ "COSS",	WANProxyConfigCacheCOSS },
+	{ NULL,		WANProxyConfigCacheMemory }
+};
+
+WANProxyConfigTypeCache
+	wanproxy_config_type_cache("cache", wanproxy_config_type_cache_map);

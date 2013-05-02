@@ -37,4 +37,14 @@ typedef ConfigTypeEnum<WANProxyConfigCodec> WANProxyConfigTypeCodec;
 
 extern WANProxyConfigTypeCodec wanproxy_config_type_codec;
 
+enum WANProxyConfigCache {
+	WANProxyConfigCacheMemory,
+	WANProxyConfigCacheCOSS
+};
+
+typedef ConfigTypeEnum<WANProxyConfigCache> WANProxyConfigTypeCache;
+
+extern WANProxyConfigTypeCache wanproxy_config_type_cache;
+
 #endif /* !PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_CODEC_H */
+

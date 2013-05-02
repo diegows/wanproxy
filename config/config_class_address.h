@@ -28,6 +28,7 @@
 
 #include <config/config_type_address_family.h>
 #include <config/config_type_string.h>
+#include <config/config_type_proto.h>
 
 class ConfigClassAddress : public ConfigClass {
 public:
@@ -36,12 +37,14 @@ public:
 		std::string host_;
 		std::string port_;
 		std::string path_;
+		ConfigProto proto_;
 
 		Instance(void)
 		: family_(SocketAddressFamilyUnspecified),
 		  host_(""),
 		  port_(""),
-		  path_("")
+		  path_(""),
+		  proto_(ConfigProtoNone)
 		{
 		}
 
@@ -55,6 +58,7 @@ public:
 		add_member("host", &config_type_string, &Instance::host_);
 		add_member("port", &config_type_string, &Instance::port_); /* XXX enum?  */
 		add_member("path", &config_type_string, &Instance::path_);
+		add_member("proto", &config_type_proto, &Instance::proto_);
 	}
 
 	~ConfigClassAddress()

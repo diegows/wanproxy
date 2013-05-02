@@ -87,7 +87,7 @@ WANProxyConfigClassProxy::Instance::activate(const ConfigObject *co)
 	std::string peer_address = '[' + peer->host_ + ']' + ':' + peer->port_;
 
 	if (type_ == WANProxyConfigProxyTypeTCPTCP) {
-		new ProxyListener(co->name_, interface_codec, peer_codec, interface->family_, interface_address, peer->family_, peer_address);
+		new ProxyListener(co->name_, interface_codec, peer_codec, interface->family_, interface_address, peer->family_, peer_address, interface->proto_, peer->proto_);
 	} else {
 		new SSHProxyListener(co->name_, interface_codec, peer_codec, interface->family_, interface_address, peer->family_, peer_address);
 	}

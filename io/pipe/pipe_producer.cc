@@ -177,7 +177,10 @@ void
 PipeProducer::produce_error(void)
 {
 	ASSERT(log_, !error_);
-	ASSERT(log_, !output_eos_);
+	//XXX: not sure about this, but error should be produced to close sockets
+	// evenf if output_eos_ was produced. This eliminated another set of
+	// CLOSE_WAITs that appears from time to time.
+	//ASSERT(log_, !output_eos_);
 
 	error_ = true;
 	output_buffer_.clear();

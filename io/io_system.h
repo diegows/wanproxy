@@ -64,6 +64,7 @@ class IOSystem {
 		void read_cancel(void);
 		Action *read_do(void);
 		Action *read_schedule(void);
+		Action *read_schedule(EventCallback *);
 
 		void write_callback(Event);
 		void write_cancel(void);
@@ -92,6 +93,7 @@ public:
 
 	Action *close(int, Channel *, SimpleCallback *);
 	Action *read(int, Channel *, off_t, size_t, EventCallback *);
+	Action *read_notify(int, Channel *, EventCallback *);
 	Action *write(int, Channel *, off_t, Buffer *, EventCallback *);
 
 	static IOSystem *instance(void)

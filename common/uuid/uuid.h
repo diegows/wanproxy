@@ -26,6 +26,8 @@
 #ifndef	COMMON_UUID_UUID_H
 #define	COMMON_UUID_UUID_H
 
+#include <fstream>
+
 /*
  * We use strings rather than the binary form to hide the fact that libuuid
  * lacks endian-aware encoding/decoding.
@@ -47,6 +49,36 @@ struct UUID {
 		buf->append(string_);
 
 		return (true);
+	}
+
+	bool load_from_file(std::string &path)
+	{
+
+		std::fstream uuid_file;
+		uuid_file.open(path.c_str(), std::ios::in);	
+		if(uuid_file.good()){
+			uuid_file>>string_;
+		}
+		else
+			return false;
+
+		return true;
+
+	}
+
+	bool save_to_file(std::string &path)
+	{
+
+		std::fstream uuid_file;
+		uuid_file.open(path.c_str(), std::ios::out);	
+		if(uuid_file.good()){
+			uuid_file<<string_;
+		}
+		else
+			return false;
+
+		return true;
+
 	}
 
 	void generate(void);

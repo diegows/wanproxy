@@ -158,17 +158,15 @@ void
 XCodecPipePair::decoder_consume(Buffer *buf)
 {
 	if (buf->empty()) {
+		if (decoder_sent_eos_)
+			DEBUG(log_) << "Decoder received EOS after sending EOS.";
 		if (!decoder_buffer_.empty())
 			ERROR(log_) << "Remote encoder closed connection with data outstanding.";
 		if (!decoder_frame_buffer_.empty())
 			ERROR(log_) << "Remote encoder closed connection with frame data outstanding.";
-		if (!decoder_sent_eos_) {
-			DEBUG(log_) << "Decoder received, sent EOS.";
-			decoder_sent_eos_ = true;
-			decoder_produce_eos();
-		} else {
-			DEBUG(log_) << "Decoder received EOS after sending EOS.";
-		}
+		if (!decoder_sent_eos_)
+			ERROR(log_) << "Decoder received, sent EOS.";
+		decoder_error();
 		return;
 	}
 
@@ -209,7 +207,10 @@ XCodecPipePair::decoder_consume(Buffer *buf)
 
 				decoder_cache_ = XCodecCache::lookup(uuid);
 				if (decoder_cache_ == NULL) {
-					decoder_cache_ = new XCodecMemoryCache(uuid);
+                                        XCodecCache *local_cache;
+                                        local_cache = XCodecCache::get_local();
+                                        ASSERT(log_, local_cache != NULL);
+					decoder_cache_ = local_cache->new_uuid(uuid);
 					XCodecCache::enter(uuid, decoder_cache_);
 				}
 
@@ -406,16 +407,16 @@ XCodecPipePair::decoder_consume(Buffer *buf)
 	 * not yet emptied decoder_unknown_hashes_, then we can't send EOS yet.
 	 */
 	if (decoder_received_eos_ && !decoder_sent_eos_) {
-		ASSERT(log_, !decoder_sent_eos_);
-		if (decoder_unknown_hashes_.empty()) {
-			ASSERT(log_, decoder_frame_buffer_.empty());
-			DEBUG(log_) << "Decoder finished, got <EOS>, shutting down decoder output channel.";
-			decoder_produce_eos();
-			decoder_sent_eos_ = true;
-		} else {
-			ASSERT(log_, !decoder_frame_buffer_.empty());
-			DEBUG(log_) << "Decoder finished, waiting to send <EOS> until <ASK>s are answered.";
-		}
+                ASSERT(log_, !decoder_sent_eos_);
+                if (decoder_unknown_hashes_.empty()) {
+                        ASSERT(log_, decoder_frame_buffer_.empty());
+                        DEBUG(log_) << "Decoder finished, got <EOS>, shutting down decoder output channel.";
+                        decoder_produce_eos();
+                        decoder_sent_eos_ = true;
+                } else {
+                        ASSERT(log_, !decoder_frame_buffer_.empty());
+                        DEBUG(log_) << "Decoder finished, waiting to send <EOS> until <ASK>s are answered.";
+                }
 	}
 
 	/*

@@ -32,7 +32,8 @@ class WANProxyConfigClassPeer : public ConfigClassAddress {
 public:
 	WANProxyConfigClassPeer(void)
 	: ConfigClassAddress("peer")
-	{ }
+	{ 
+	}
 
 	~WANProxyConfigClassPeer()
 	{ }

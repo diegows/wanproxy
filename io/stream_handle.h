@@ -38,6 +38,7 @@ public:
 
 	virtual Action *close(SimpleCallback *);
 	virtual Action *read(size_t, EventCallback *);
+	virtual Action *read_notify(EventCallback *cb);
 	virtual Action *write(Buffer *, EventCallback *);
 	virtual Action *shutdown(bool, bool, EventCallback *);
 };

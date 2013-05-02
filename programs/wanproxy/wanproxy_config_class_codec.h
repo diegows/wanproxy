@@ -27,14 +27,21 @@
 #define	PROGRAMS_WANPROXY_WANPROXY_CONFIG_CLASS_CODEC_H
 
 #include <config/config_type_int.h>
+#include <config/config_type_string.h>
 
+#include "xcodec/xcodec_cache.h"
 #include "wanproxy_codec.h"
 #include "wanproxy_config_type_codec.h"
 #include "wanproxy_config_type_compressor.h"
 
 class WANProxyConfigClassCodec : public ConfigClass {
+
+	Action *stop_action_;
+
 public:
 	struct Instance : public ConfigClassInstance {
+		XCodecCache *new_codec_cache(UUID &uuid);
+
 		WANProxyCodec codec_;
 		WANProxyConfigCodec codec_type_;
 		WANProxyConfigCompressor compressor_;
@@ -44,6 +51,11 @@ public:
 		intmax_t codec_to_outgoing_bytes_;
 		intmax_t incoming_to_codec_bytes_;
 		intmax_t codec_to_incoming_bytes_;
+
+		WANProxyConfigCache cache_type;
+		std::string cache_path;
+		intmax_t local_size;
+		intmax_t remote_size;
 
 		Instance(void)
 		: codec_(),
@@ -70,6 +82,11 @@ public:
 		add_member("codec", &wanproxy_config_type_codec, &Instance::codec_type_);
 		add_member("compressor", &wanproxy_config_type_compressor, &Instance::compressor_);
 		add_member("compressor_level", &config_type_int, &Instance::compressor_level_);
+
+		add_member("cache", &wanproxy_config_type_cache, &Instance::cache_type);
+		add_member("cache_path", &config_type_string, &Instance::cache_path);
+		add_member("remote_size", &config_type_int, &Instance::remote_size);
+		add_member("local_size", &config_type_int, &Instance::local_size);
 
 		add_member("outgoing_to_codec_bytes", &config_type_int, &Instance::outgoing_to_codec_bytes_);
 		add_member("codec_to_outgoing_bytes", &config_type_int, &Instance::codec_to_outgoing_bytes_);

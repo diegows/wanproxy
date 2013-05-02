@@ -97,6 +97,7 @@ public:
 
 	void connect_complete(Event e, Socket *socket)
 	{
+                DEBUG("ORIG") << __LINE__;
 		action_->cancel();
 		action_ = NULL;
 

@@ -26,5 +26,5 @@ SRCS+=	wanproxy_config_type_compressor.cc
 SRCS+=	wanproxy_config_type_proxy_type.cc
 
 TOPDIR=../..
-USE_LIBS=common common/thread common/time common/uuid config crypto event http io io/net io/pipe io/socket ssh xcodec zlib
+USE_LIBS=common common/thread common/time common/uuid config crypto event http io io/net io/pipe io/socket xcodec xcodec/cache/coss zlib ssh
 include ${TOPDIR}/common/program.mk

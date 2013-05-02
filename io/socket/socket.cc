@@ -28,10 +28,13 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include <common/endian.h>
 
@@ -687,3 +690,48 @@ Socket::create(SocketAddressFamily family, SocketType type, const std::string& p
 
 	return (new Socket(s, domainnum, typenum, protonum));
 }
+
+void 
+Socket::set_keepalive(void)
+{
+
+        int optval;
+        socklen_t optlen = sizeof(optval);
+
+        optval = 1;
+        if (setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0)
+                HALT("/socket") << "set_keepalive() failed.";
+
+}
+
+void
+Socket::set_keepalive(int idle, int intvl, int count)
+{
+
+        int optval;
+        socklen_t optlen = sizeof(optval);
+
+        set_keepalive();
+
+        //TODO: use getprotoent()
+        optval = intvl;
+        if (setsockopt(fd_, 6, TCP_KEEPINTVL, &optval, optlen) < 0)
+                HALT("/socket") << "set_keepalive() INTVL failed.";
+
+        optval = idle;
+        if (setsockopt(fd_, 6, TCP_KEEPIDLE, &optval, optlen) < 0)
+                HALT("/socket") << "set_keepalive() IDLE failed.";
+
+        optval = count;
+        if (setsockopt(fd_, 6, TCP_KEEPCNT, &optval, optlen) < 0)
+                HALT("/socket") << "set_keepalive() CNT failed.";
+
+}
+
+int
+Socket::raw_read(void *buf, size_t count)
+{
+        //TODO: move this to StreamHandle or IOSystem.
+        return ::read(fd_, buf, count);
+}
+

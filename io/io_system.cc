@@ -307,6 +307,15 @@ IOSystem::Handle::read_schedule(void)
 	return (a);
 }
 
+Action *
+IOSystem::Handle::read_schedule(EventCallback *cb)
+{
+	ASSERT(log_, read_action_ == NULL);
+
+	Action *a = EventSystem::instance()->poll(EventPoll::Readable, fd_, cb);
+	return (a);
+}
+
 void
 IOSystem::Handle::write_callback(Event e)
 {
@@ -589,6 +598,24 @@ IOSystem::read(int fd, Channel *owner, off_t offset, size_t amount, EventCallbac
 	}
 	ASSERT(log_, h->read_callback_ == NULL);
 	return (a);
+}
+
+/* Notify when there is data ready to be read */
+Action *
+IOSystem::read_notify(int fd, Channel *owner, EventCallback *cb)
+{
+
+	IOSystem::Handle *h;
+
+	h = handle_map_[handle_key_t(fd, owner)];
+	ASSERT(log_, h != NULL);
+
+	ASSERT(log_, h->read_callback_ == NULL);
+	ASSERT(log_, h->read_action_ == NULL);
+
+        h->read_action_ = h->read_schedule(cb);
+        return (cancellation(h, &IOSystem::Handle::read_cancel));
+	
 }
 
 Action *
