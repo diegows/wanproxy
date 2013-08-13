@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <stdio.h>
 
 #include <common/endian.h>
 
