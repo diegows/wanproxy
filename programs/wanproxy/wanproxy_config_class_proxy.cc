@@ -34,7 +34,7 @@
 #include <io/socket/socket_types.h>
 
 #include "proxy_listener.h"
-#include "ssh_proxy_listener.h"
+//include "ssh_proxy_listener.h"
 #include "wanproxy_config_class_codec.h"
 #include "wanproxy_config_class_interface.h"
 #include "wanproxy_config_class_peer.h"
@@ -89,7 +89,8 @@ WANProxyConfigClassProxy::Instance::activate(const ConfigObject *co)
 	if (type_ == WANProxyConfigProxyTypeTCPTCP) {
 		new ProxyListener(co->name_, interface_codec, peer_codec, interface->family_, interface_address, peer->family_, peer_address, interface->proto_, peer->proto_);
 	} else {
-		new SSHProxyListener(co->name_, interface_codec, peer_codec, interface->family_, interface_address, peer->family_, peer_address);
+		//new SSHProxyListener(co->name_, interface_codec, peer_codec, interface->family_, interface_address, peer->family_, peer_address);
+		return (true);
 	}
 
 	return (true);
