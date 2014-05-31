@@ -40,9 +40,10 @@ main(void)
 		uuid.generate();
 
 		for (j = 0; j < 4; j++) {
-                        XCodecCache *cache = new XCodecCacheCOSS(uuid, cache_path_str, 10);
+                        XCodecCache *cache = new XCodecCacheCOSS(uuid, cache_path_str, 
+					10, 10, 10);
 
-                        for (i = 0; i < 3072; i++) {
+                        for (i = 0; i < 10000; i++) {
                                 BufferSegment *seg, *seg1;
                                 seg = BufferSegment::create();
                                 char random[XCODEC_SEGMENT_LENGTH];
@@ -63,7 +64,8 @@ main(void)
                         }
 
                         delete cache;
-                        cache = new XCodecCacheCOSS(uuid, cache_path_str, 10);
+                        cache = new XCodecCacheCOSS(uuid, cache_path_str,
+					10, 10, 10);
 
                         segment_list_element_t el;
                         BufferSegment *seg1, *seg2;

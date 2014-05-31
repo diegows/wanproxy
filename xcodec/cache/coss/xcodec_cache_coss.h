@@ -139,7 +139,12 @@ public:
 		{
 			Hash64 hash = i->second;
 
-			index_entry = index[hash];	
+			// Check if the segment is the index.
+			index_t::iterator it = index.find(hash);
+			if (it == index.end())
+				continue;
+
+			index_entry = it->second;
 			/* segment was relocated, ignore */
 			if (index_entry->stripe_number != stripe_number)
 				continue;
