@@ -182,12 +182,12 @@ Splice::read_complete(Event e)
 		read_eos_ = true;
 	}
 
-	if (pipe_ != NULL) {
+	if (!e.buffer_.empty() && pipe_ != NULL) {
 		ASSERT(log_, input_action_ == NULL);
 		EventCallback *cb = callback(this, &Splice::input_complete);
 		input_action_ = pipe_->input(&e.buffer_, cb);
 	} else {
-		if (e.type_ == Event::EOS && e.buffer_.empty()) {
+		if (e.type_ == Event::EOS || e.buffer_.empty()) {
 			EventCallback *cb = callback(this, &Splice::shutdown_complete);
 			shutdown_action_ = sink_->shutdown(false, true, cb);
 			return;
