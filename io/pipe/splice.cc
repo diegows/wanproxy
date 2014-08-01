@@ -218,7 +218,9 @@ Splice::input_complete(Event e)
 	if (!read_eos_) {
 		EventCallback *cb = callback(this, &Splice::read_complete);
 		read_action_ = source_->read(0, cb);
-	} else if (output_eos_) {
+	} else if (output_eos_ || read_eos_) {
+                EventCallback *cb = callback(this, &Splice::shutdown_complete);
+                shutdown_action_ = source_->shutdown(false, true, cb);
 		complete(Event::EOS);
 	}
 }
